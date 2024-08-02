@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHealthCheck", "src\NHealthCheck.csproj", "{6A60D3E4-582A-4B97-BA14-00EA1DD4F40E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NHealthCheck.Tests", "tests\NHealthCheck.Tests.csproj", "{E1916017-D16D-40A3-BCDD-F6A2EC0C7803}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6A60D3E4-582A-4B97-BA14-00EA1DD4F40E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A60D3E4-582A-4B97-BA14-00EA1DD4F40E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A60D3E4-582A-4B97-BA14-00EA1DD4F40E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A60D3E4-582A-4B97-BA14-00EA1DD4F40E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E1916017-D16D-40A3-BCDD-F6A2EC0C7803}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E1916017-D16D-40A3-BCDD-F6A2EC0C7803}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E1916017-D16D-40A3-BCDD-F6A2EC0C7803}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E1916017-D16D-40A3-BCDD-F6A2EC0C7803}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
