@@ -1,0 +1,74 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.version.outputs.next_tag }}
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.x'
+    - id: version
+      name: Calculate Version
+      uses: craig-day/compute-tag@v18
+      with:
+        github_token: ${{ github.token }}
+        version_type: patch
+    - name: Install dependencies (Solution)
+      run: dotnet restore src/NHealthCheck.csproj
+    - name: Build
+      run: dotnet build --configuration Release --no-restore /p:Version=${{ steps.version.outputs.next_tag }} src/NHealthCheck.csproj
+    - name: Install dependencies (Test)
+      run: dotnet restore tests/NHealthCheck.Tests.csproj
+    - name: Test
+      run: dotnet test tests/NHealthCheck.Tests.csproj --collect:"XPlat Code Coverage"
+    - name: Coverage
+      uses: coverallsapp/github-action@v2.3.0
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        file: tests/TestResults/**/coverage.cobertura.xml
+    - name: Upload Build Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: NuGetPackage
+        path: ./src/bin/Release/NHealthCheck.${{ steps.version.outputs.next_tag }}.nupkg
+
+  release:
+    runs-on: ubuntu-latest
+    if: ${{ contains(github.ref, 'main') }}
+    needs: [ build ]
+
+    steps:
+    - name: Download Build Artifact
+      uses: actions/download-artifact@v4
+      with:
+        name: NuGetPackage
+    - name: Push to NuGet
+      run: dotnet nuget push ./NHealthCheck.${{ needs.build.outputs.version }}.nupkg -k $NuGetApiKey -s https://api.nuget.org/v3/index.json
+      env:
+        NuGetApiKey: ${{ secrets.NuGetApiKey }}
+    - name: Release
+      id: release
+      uses: comnoco/create-release-action@v2
+      with:
+        tag_name: ${{ needs.build.outputs.version }}
+        release_name: ${{ needs.build.outputs.version }}
+        body: 'Automatic release of ${{ needs.build.outputs.version }}'
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
+    - name: Upload Release Asset
+      uses: csexton/release-asset-action@v3
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        release-url: ${{ steps.release.outputs.upload_url }}
+        file: ./NHealthCheck.${{ needs.build.outputs.version }}.nupkg
