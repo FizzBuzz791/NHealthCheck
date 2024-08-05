@@ -2,11 +2,17 @@ using System.Net;
 
 namespace NHealthCheck;
 
-public class HealthCheckService(HttpClient httpClient) : IHealthCheckService
+public class HealthCheckService : IHealthCheckService
 {
-    private readonly HttpClient HttpClient = httpClient;
+    private readonly HttpClient HttpClient;
 
     private string BaseUrl { get; set; } = "https://hc-ping.com";
+
+    public HealthCheckService(HttpClient httpClient)
+    {
+        HttpClient = httpClient;
+        HttpClient.BaseAddress = new Uri(BaseUrl);
+    }
 
     public async Task<HttpResponseMessage> SuccessAsync(Guid uuid)
     {
@@ -24,7 +30,6 @@ public class HealthCheckService(HttpClient httpClient) : IHealthCheckService
     {
         try
         {
-            HttpClient.BaseAddress = new Uri(BaseUrl);
             return await HttpClient.GetAsync(url);
         }
         catch (Exception ex)
