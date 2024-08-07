@@ -68,6 +68,27 @@ public class HealthCheckServiceTests
     }
 
     [Test]
+    public async Task GivenAnUUIDAndARunIdWhenTimingAProcessThenTheExpectedEndpointIsCalled()
+    {
+        // Arrange
+        var uuid = Guid.NewGuid();
+        var runId = Guid.NewGuid();
+        var mockHttpMessageHandler = new MockHttpMessageHandler();
+        var mockRequest = mockHttpMessageHandler
+            .Expect(HttpMethod.Get, $"{BaseUrl}/{uuid}/start")
+            .WithQueryString("rid", runId.ToString())
+            .Respond(HttpStatusCode.OK);
+        var hcs = new HealthCheckService(mockHttpMessageHandler.ToHttpClient());
+
+        // Act
+        var response = await hcs.StartAsync(uuid, runId);
+
+        // Assert
+        mockHttpMessageHandler.GetMatchCount(mockRequest).ShouldBe(1);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    [Test]
     public async Task GivenABadRequestWhenAnExceptionIsThrownThenInternalServerErrorIsReturned()
     {
         // Arrange

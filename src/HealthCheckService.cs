@@ -32,9 +32,18 @@ public class HealthCheckService : IHealthCheckService
         return await CallEndpoint(url);
     }
 
-    public async Task<HttpResponseMessage> StartAsync(Guid uuid)
+    public async Task<HttpResponseMessage> StartAsync(Guid uuid, Guid? runId = null)
     {
         var url = $"{BaseUrl}/{uuid}/start";
+
+        if (runId.HasValue)
+        {
+            var qpb = new QueryParamBuilder();
+            qpb.AddQueryParam("rid", runId.Value.ToString());
+
+            url += qpb.ToQueryString();
+        }
+
         return await CallEndpoint(url);
     }
 
