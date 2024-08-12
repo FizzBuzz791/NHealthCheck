@@ -107,4 +107,44 @@ public class HealthCheckServiceTests
         response.StatusCode.ShouldBe(HttpStatusCode.InternalServerError);
         response.ReasonPhrase.ShouldBe("Test Exception");
     }
+
+    [Test]
+    public async Task GivenAnUUIDWhenReportingAFailThenTheExpectedEndpointIsCalled()
+    {
+        // Arrange
+        var uuid = Guid.NewGuid();
+        var mockHttpMessageHandler = new MockHttpMessageHandler();
+        var mockRequest = mockHttpMessageHandler
+            .Expect(HttpMethod.Get, $"{BaseUrl}/{uuid}/fail")
+            .Respond(HttpStatusCode.OK);
+        var hcs = new HealthCheckService(mockHttpMessageHandler.ToHttpClient());
+
+        // Act
+        var response = await hcs.FailAsync(uuid);
+
+        // Assert
+        mockHttpMessageHandler.GetMatchCount(mockRequest).ShouldBe(1);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    [Test]
+    public async Task GivenAnUUIDAndARunIdWhenReportingAFailThenTheExpectedEndpointIsCalled()
+    {
+        // Arrange
+        var uuid = Guid.NewGuid();
+        var runId = Guid.NewGuid();
+        var mockHttpMessageHandler = new MockHttpMessageHandler();
+        var mockRequest = mockHttpMessageHandler
+            .Expect(HttpMethod.Get, $"{BaseUrl}/{uuid}/fail")
+            .WithQueryString("rid", runId.ToString())
+            .Respond(HttpStatusCode.OK);
+        var hcs = new HealthCheckService(mockHttpMessageHandler.ToHttpClient());
+
+        // Act
+        var response = await hcs.FailAsync(uuid, runId);
+
+        // Assert
+        mockHttpMessageHandler.GetMatchCount(mockRequest).ShouldBe(1);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
 }
