@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using NHealthCheck.Helpers;
 
 namespace NHealthCheck;
@@ -29,7 +30,7 @@ public class HealthCheckService : IHealthCheckService
             url += qpb.ToQueryString();
         }
 
-        return await CallEndpoint(url);
+        return await CallEndpoint(new HttpRequestMessage(HttpMethod.Get, url));
     }
 
     public async Task<HttpResponseMessage> StartAsync(Guid uuid, Guid? runId = null)
@@ -44,7 +45,7 @@ public class HealthCheckService : IHealthCheckService
             url += qpb.ToQueryString();
         }
 
-        return await CallEndpoint(url);
+        return await CallEndpoint(new HttpRequestMessage(HttpMethod.Get, url));
     }
 
     public async Task<HttpResponseMessage> FailAsync(Guid uuid, Guid? runId = null)
@@ -59,14 +60,34 @@ public class HealthCheckService : IHealthCheckService
             url += qpb.ToQueryString();
         }
 
-        return await CallEndpoint(url);
+        return await CallEndpoint(new HttpRequestMessage(HttpMethod.Get, url));
     }
 
-    private async Task<HttpResponseMessage> CallEndpoint(string url)
+    public async Task<HttpResponseMessage> LogAsync(Guid uuid, string logMessage, Guid? runId = null)
+    {
+        var url = $"{BaseUrl}/{uuid}/log";
+
+        if (runId.HasValue)
+        {
+            var qpb = new QueryParamBuilder();
+            qpb.AddQueryParam("rid", runId.Value.ToString());
+
+            url += qpb.ToQueryString();
+        }
+
+        var request = new HttpRequestMessage(HttpMethod.Post, url)
+        {
+            Content = new StringContent(logMessage, new MediaTypeHeaderValue("text/plain"))
+        };
+
+        return await CallEndpoint(request);
+    }
+
+    private async Task<HttpResponseMessage> CallEndpoint(HttpRequestMessage requestMessage)
     {
         try
         {
-            return await HttpClient.GetAsync(url);
+            return await HttpClient.SendAsync(requestMessage);
         }
         catch (Exception ex)
         {

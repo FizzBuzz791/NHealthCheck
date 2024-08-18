@@ -58,4 +58,21 @@ public interface IHealthCheckService
     /// </list>
     /// </returns>
     Task<HttpResponseMessage> FailAsync(Guid uuid, Guid? runId = null);
+
+    /// <summary>
+    /// Sends logging information to Healthchecks.io without signaling success or failure.
+    /// </summary>
+    /// <param name="uuid">UUID associated with the relevant check.</param>
+    /// <param name="logMessage">Message to log.</param>
+    /// <param name="runId">(Optional) Specifies the Run ID of this ping.</param>
+    /// <returns>
+    /// A <see cref="Task{HttpResponseMessage}"/> which represents the response returned from the Healthchecks.io API.<br/>
+    /// <br/>
+    /// Possible values include:<br/>
+    /// <list type="bullet"> 
+    /// <item>200 OK - The request succeeded.</item>
+    /// <item>404 not found - Could not find a check with the specified UUID.</item>
+    /// </list>
+    /// </returns>
+    Task<HttpResponseMessage> LogAsync(Guid uuid, string logMessage, Guid? runId = null);
 }

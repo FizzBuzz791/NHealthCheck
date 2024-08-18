@@ -147,4 +147,44 @@ public class HealthCheckServiceTests
         mockHttpMessageHandler.GetMatchCount(mockRequest).ShouldBe(1);
         response.StatusCode.ShouldBe(HttpStatusCode.OK);
     }
+
+    [Test]
+    public async Task GivenAnUUIDWhenLoggingThenTheExpectedEndpointIsCalled()
+    {
+        // Arrange
+        var uuid = Guid.NewGuid();
+        var mockHttpMessageHandler = new MockHttpMessageHandler();
+        var mockRequest = mockHttpMessageHandler
+            .Expect(HttpMethod.Post, $"{BaseUrl}/{uuid}/log")
+            .Respond(HttpStatusCode.OK);
+        var hcs = new HealthCheckService(mockHttpMessageHandler.ToHttpClient());
+
+        // Act
+        var response = await hcs.LogAsync(uuid, "Hello, World!");
+
+        // Assert
+        mockHttpMessageHandler.GetMatchCount(mockRequest).ShouldBe(1);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
+
+    [Test]
+    public async Task GivenAnUUIDAndARunIdWhenLoggingThenTheExpectedEndpointIsCalled()
+    {
+        // Arrange
+        var uuid = Guid.NewGuid();
+        var runId = Guid.NewGuid();
+        var mockHttpMessageHandler = new MockHttpMessageHandler();
+        var mockRequest = mockHttpMessageHandler
+            .Expect(HttpMethod.Post, $"{BaseUrl}/{uuid}/log")
+            .WithQueryString("rid", runId.ToString())
+            .Respond(HttpStatusCode.OK);
+        var hcs = new HealthCheckService(mockHttpMessageHandler.ToHttpClient());
+
+        // Act
+        var response = await hcs.LogAsync(uuid, "Hello, World!", runId);
+
+        // Assert
+        mockHttpMessageHandler.GetMatchCount(mockRequest).ShouldBe(1);
+        response.StatusCode.ShouldBe(HttpStatusCode.OK);
+    }
 }
