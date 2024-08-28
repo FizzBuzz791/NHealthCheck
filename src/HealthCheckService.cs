@@ -83,6 +83,21 @@ public class HealthCheckService : IHealthCheckService
         return await CallEndpoint(request);
     }
 
+    public async Task<HttpResponseMessage> ExitStatusAsync(Guid uuid, int exitStatus, Guid? runId = null)
+    {
+        var url = $"{BaseUrl}/{uuid}/{exitStatus}";
+
+        if (runId.HasValue)
+        {
+            var qpb = new QueryParamBuilder();
+            qpb.AddQueryParam("rid", runId.Value.ToString());
+
+            url += qpb.ToQueryString();
+        }
+
+        return await CallEndpoint(new HttpRequestMessage(HttpMethod.Get, url));
+    }
+
     private async Task<HttpResponseMessage> CallEndpoint(HttpRequestMessage requestMessage)
     {
         try
